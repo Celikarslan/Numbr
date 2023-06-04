@@ -4,21 +4,23 @@ from string import ascii_letters
 from rich.console import Console
 from rich.theme import Theme
 
-console = Console(width=50, theme=Theme({"warning": "red on yellow"}))
+console = Console(width=50)
 
 def showGuess(guesses,answer):
     for guess in guesses:
         styled_guess = []
-        for number, correct in zip(guess, answer):
-            if number == correct:
-                style = "bold white on green"
-            elif number in answer:
-                style = "bold white on yellow"
-            elif number in ascii_letters:
-                style = "white on #666666"
+        for x,y in zip(guess,answer):
+            if x == y:
+                style = "bold white on dark_green"
+            elif x > y and x is not '_':
+                style = "bold white on red"
+            elif x < y:
+                style = "bold white on bright_cyan"
+            elif x in ascii_letters:
+                style = "white on black"
             else:
                 style = "dim"
-            styled_guess.append(f"[{style}]{number}[/]")
+            styled_guess.append(f"[{style}]{x}[/]")
 
         console.print("".join(styled_guess), justify="center")
     
@@ -32,17 +34,20 @@ def gameOver(guesses,answer,guessCorrect):
     
 def refresh(headline):
     console.clear()
-    console.rule(f"[bold blue]:leafy_green: {headline} :leafy_green:[/]\n")
+    console.rule(f"[bold white]:ice: {headline} :fire:[/]\n",style="magenta")
     
     
 def main():
-    answer = "%05d" % random.randint(0,99999)
+    answer = "%5d" % random.randint(10000,99999)
     guesses = ["_"*5] * 6
     for guessNum in range(6):
         refresh(headline=f"Guess {guessNum + 1}")
         showGuess(guesses, answer)
 
-        guesses[guessNum] = input("\nGuess Number: ").upper()
+        guesses[guessNum] = input("\nGuess Number: ")
+        while not guesses[guessNum].isdigit() or len(guesses[guessNum]) > 5:
+            guesses[guessNum] = input("\nPlease Guess a Number between 0-99999: ")
+        guesses[guessNum] = guesses[guessNum].zfill(5)
         if guesses[guessNum] == answer:
             break
     gameOver(guesses,answer,guessCorrect=guesses[guessNum] == answer)
